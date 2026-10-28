@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AI Phishing Message Analyzer</title>
+  <style>
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: Arial, sans-serif; background: #f1f5f9; color: #17263c; }
+    header { background: #0c203d; color: white; padding: 25px 6%; border-bottom: 5px solid #0fa5a5; }
+    header h1 { margin: 0 0 8px; font-size: 28px; }
+    header p { margin: 0; color: #dce6f3; }
+    main { max-width: 950px; margin: 28px auto; padding: 0 18px; }
+    .panel { background: white; padding: 23px; border-radius: 12px; margin-bottom: 20px; box-shadow: 0 4px 18px #142b4410; }
+    .mode { display: inline-block; background: #def7f2; color: #087b79; padding: 8px 12px; border-radius: 20px; font-size: 13px; margin-bottom: 16px; }
+    h2 { margin-top: 0; font-size: 20px; }
+    textarea { width: 100%; min-height: 150px; resize: vertical; padding: 13px; border: 1px solid #bac8d8; border-radius: 7px; font: 15px Arial; line-height: 1.5; }
+    button { background: #0fa5a5; color: white; border: 0; border-radius: 7px; padding: 12px 18px; margin-top: 12px; cursor: pointer; font-weight: bold; }
+    button:hover { background: #087f83; }
+    .error { background: #fff0ef; color: #a62922; padding: 12px; border-radius: 7px; margin-bottom: 16px; }
+    .risk { display: inline-block; padding: 8px 12px; border-radius: 7px; background: #fff0db; font-weight: bold; }
+    .risk-high { background: #ffe1e1; color: #a32020; }
+    .risk-low { background: #e2f7e9; color: #176a37; }
+    li { margin-bottom: 8px; line-height: 1.45; }
+    pre { white-space: pre-wrap; overflow-wrap: anywhere; background: #e9fbf2; border: 1px solid #079669; border-radius: 7px; padding: 14px; font-size: 13px; }
+    .muted { color: #65758a; font-size: 13px; line-height: 1.5; }
+  </style>
+</head>
+<body>
+<header>
+  <h1>AI Phishing Message Analyzer</h1>
+  <p>Check suspicious messages and learn safer next steps.</p>
+</header>
+<main>
+  <div class="mode">Mode: {{ "Groq LLM SDK" if ai_enabled else "Local Demo (rule-based)" }}</div>
+  {% if error %}<div class="error">{{ error }}</div>{% endif %}
+
+  <section class="panel">
+    <h2>1. Enter a message</h2>
+    <form method="post">
+      <textarea name="message" placeholder="Paste a suspicious email or text message here..." required>{{ message }}</textarea>
+      <button type="submit">Analyze Message</button>
+    </form>
+    <p class="muted">Do not paste real passwords, one-time codes, bank details, or other private information.</p>
+  </section>
+
+  {% if result %}
+  <section class="panel">
+    <h2>2. Analysis result</h2>
+    <p>Risk assessment:
+      <span class="risk {{ 'risk-high' if result.risk_level == 'High' else 'risk-low' if result.risk_level == 'Low' else '' }}">
+        {{ result.risk_level }}
+      </span>
+    </p>
+
+    <h3>Warning signs</h3>
+    <ul>{% for item in result.warning_signs %}<li>{{ item }}</li>{% endfor %}</ul>
+
+    <h3>Explanation</h3>
+    <p>{{ result.explanation }}</p>
+
+    <h3>Safe next steps</h3>
+    <ul>{% for item in result.safe_actions %}<li>{{ item }}</li>{% endfor %}</ul>
+
+    <h3>JSON output</h3>
+    <pre>{{ result | tojson(indent=2) }}</pre>
+  </section>
+  {% endif %}
+
+  <p class="muted">This tool provides an advisory assessment, not a guarantee. Verify requests through official channels. The local demo uses simple rules and is not an AI model.</p>
+</main>
+</body>
+</html>
